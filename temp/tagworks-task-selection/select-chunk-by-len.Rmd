@@ -1,0 +1,45 @@
+---
+title: "Check length of PMC article chunks"
+author: "Fan Du"
+date: "6/25/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(ggplot2)
+library(kableExtra)
+
+pmc_chunks <- read_csv("https://raw.githubusercontent.com/caifand/softcite-dataset/fan/temp/tagworks-task-selection/articles_with_lengths.csv")
+```
+
+**The distribution of PMC article chunk length:**
+
+```{r}
+pmc_chunks %>% 
+  ggplot(aes(x=char_length)) +
+  geom_bar()
+
+pmc_chunks %>% 
+  mutate(char_len = case_when(
+    char_length < 1000 ~ "(0, 1000)",
+    char_length >= 1000 & char_length < 2000 ~ "[1000, 2000)",
+    char_length >= 2000 & char_length < 3000 ~ "[2000, 3000)",
+    char_length >= 3000 & char_length < 4000 ~ "[3000, 4000)",
+    char_length >= 4000 & char_length < 5000 ~ "[4000, 5000)",
+    char_length >= 5000 & char_length < 6000 ~ "[5000, 6000)",
+    char_length >= 6000 & char_length < 7000 ~ "[6000, 7000)",
+    char_length >= 7000 & char_length < 15000 ~ "[7000, 15000)")) %>% 
+  group_by(char_len) %>% 
+  summarise(n_article = n_distinct(article_number)) %>% 
+  knitr::kable() %>% 
+  kable_styling()
+
+```
+
+**The article length of a common Phase I qualification task (that we all tried before) is most concentrated within (3000, 4500).**
+
+**So I suggest that we do the random selection of tasks for Phase I from the (3000, 5000] group.**
+
+**What do you think?**
